@@ -12,13 +12,18 @@ function Floor(x, height) {
 let world = {
     height: 480,
     width: 640,
-    gravity: 10,
+    gravity: 2,
     speed: 2,
     distanceTravelled: 0,
     highestFloor: 100,
+    autoScroll: true,
     floorTiles: [
         new Floor(0, 140)
     ],
+
+    stop: function() {
+        this.autoScroll = false;
+    },
 
     // move floor loop to move continuously left (x axis)
     moveFloor: function() {
@@ -37,6 +42,15 @@ let world = {
         this.floorTiles.push(next);
     },
 
+    // function to remove tiles once they move past "x" by checking if they're less than or equal to the value of "x"  in the Floor function, this is to conserve the browser's memory
+    removeTiles: function() {
+        for (let index in this.floorTiles) {
+            if (this.floorTiles[index].x <= -this.floorTiles[index].width) {
+                this.floorTiles.splice(index, 1);
+            }
+        }
+    },
+
     // function to continuously draw tiles as the game runs using a for loop
     draw: function() {
         ctx.fillStyle = "black";
@@ -46,16 +60,72 @@ let world = {
             ctx.fillStyle = "purple";
             ctx.fillRect(tile.x, y, tile.width, tile.height);
         }
+    },
+
+    getDistanceToFloor: function(playerX) {
+        for (let tile of this.floorTiles) {
+            if (tile.x <= playerX && tile.x + tile.width >= playerX) {
+                return tile.height;
+            }
+        }
+        return -1;
+    },
+
+    // Define a tick method to handle world updates
+    tick: function() {
+        if (!this.autoScroll) {
+            return;
+        }
+        this.moveFloor();
+        this.removeTiles();
+        this.createFutureTiles();
     }
 };
 
-// Call the draw function and set time
+// player function
+let player = {
+    x: 160,
+    y: 340,
+    height: 20,
+    width: 20,
+
+    tick: function() {
+        this.applyGravity();
+    },
+
+    draw: function() {
+        ctx.fillStyle = "red";
+        ctx.fillRect(this.x, this.y - this.height, this.width, this.height);
+    },
+
+    // apply gravity to the player
+    applyGravity: function() {
+        let platformBelow = world.getDistanceToFloor(this.x);
+        let rightHandSideDistance = world.getDistanceToFloor(this.x + this.width);
+        this.currentDistanceAboveGround = world.height - this.y - platformBelow;
+
+        if (this.currentDistanceAboveGround < 0 || rightHandSideDistance < 0) {
+            world.stop();
+        } else {
+            this.y += world.gravity;
+            let floorHeight = world.getDistanceToFloor(this.x);
+            let topOfPlatform = world.height - floorHeight;
+            if (this.y > topOfPlatform) {
+                this.y = topOfPlatform;
+            }
+        }
+    }
+};
+
+// Call the draw function and set timer
 function tick() {
+    player.tick();
+    world.tick();
     world.draw();
-    world.moveFloor();
+    player.draw();
     if (world.floorTiles[world.floorTiles.length - 1].x + world.floorTiles[world.floorTiles.length - 1].width < world.width) {
         world.createFutureTiles();
     }
-    window.setTimeout(tick, 1000 / 60);
+    world.timer = window.setTimeout(tick, 1000 / 60);
 }
 tick();

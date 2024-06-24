@@ -1,0 +1,12 @@
+.screen {
+    display: flex;
+    justify-content: center;
+    background-color: gray;
+}
+
+.instructions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+}
