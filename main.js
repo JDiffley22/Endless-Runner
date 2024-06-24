@@ -1,5 +1,6 @@
 let canvas = document.getElementById("canvas");
 let ctx = canvas.getContext("2d");
+let restartButton = document.getElementById("restartButton");
 
 // defines the area for the floor
 function Floor(x, height) {
@@ -13,7 +14,7 @@ let world = {
     height: 480,
     width: 640,
     gravity: 2,
-    speed: 2,
+    speed: 3,
     distanceTravelled: 0,
     maxSpeed: 15,
     tilesPassed: 0,
@@ -25,6 +26,17 @@ let world = {
 
     stop: function() {
         this.autoScroll = false;
+        restartButton.style.display = "block";
+    },
+
+    restart: function() {
+        this.speed = 2;
+        this.distanceTravelled = 0;
+        this.tilesPassed = 0;
+        this.floorTiles = [new Floor(0, 140)];
+        this.autoScroll = true;
+        player.reset();
+        restartButton.style.display = "none";
     },
 
     // move floor loop to move continuously left (x axis)
@@ -56,8 +68,9 @@ let world = {
         for (let index in this.floorTiles) {
             if (this.floorTiles[index].x <= -this.floorTiles[index].width) {
                 this.floorTiles.splice(index, 1);
+                // increase speed of player object when passing tiles
                 this.tilesPassed++;
-                if (this.tilesPassed % 3 === 0 && this.speed < this.maxSpeed) {
+                if (this.tilesPassed % 2 === 0 && this.speed < this.maxSpeed) {
                     this.speed++;
                 }
             }
@@ -73,6 +86,10 @@ let world = {
             ctx.fillStyle = "purple";
             ctx.fillRect(tile.x, y, tile.width, tile.height);
         }
+        ctx.fillStyle = "white";
+        ctx.font = "28px Arial";
+        ctx.fillText("Speed: " + this.speed, 10, 40);
+        ctx.fillText("Distance Travelled: " + this.distanceTravelled, 10, 75);
     },
 
     getDistanceToFloor: function(playerX) {
@@ -95,7 +112,7 @@ let world = {
     }
 };
 
-// player functions
+// player object and functions
 let player = {
     x: 160,
     y: 340,
@@ -114,6 +131,7 @@ let player = {
         ctx.fillRect(this.x, this.y - this.height, this.width, this.height);
     },
 
+    // event function to listen for keyPress event set as Spacebar or Up Arrow key
     keyPress: function(event) {
         if ((event.key === " " || event.key === "ArrowUp") && !this.isJumping) {
             let floorHeight = world.getDistanceToFloor(this.x);
@@ -153,11 +171,25 @@ let player = {
                 }
             }
         }
+    },
+
+    reset: function() {
+        this.x = 160;
+        this.y = 340;
+        this.downwardForce = 0;
+        this.jumpHeight = 0;
+        this.isJumping = false;
     }
 };
 
-// Call the draw function and set timer
+// Event listeners
 window.addEventListener("keydown", function(event) { player.keyPress(event); }, false);
+restartButton.addEventListener("click", function() { 
+    world.restart();
+    tick();
+}, false);
+
+// Initial game loop
 function tick() {
     player.tick();
     world.tick();
