@@ -23,6 +23,7 @@ let world = {
     floorTiles: [
         new Floor(0, 140)
     ],
+    timer: null,
 
     stop: function() {
         this.autoScroll = false;
@@ -30,13 +31,14 @@ let world = {
     },
 
     restart: function() {
+        clearTimeout(this.timer);
         this.speed = 2;
         this.distanceTravelled = 0;
         this.tilesPassed = 0;
         this.floorTiles = [new Floor(0, 140)];
         this.autoScroll = true;
         player.reset();
-        restartButton.style.display = "none";
+        tick();
     },
 
     // move floor loop to move continuously left (x axis)
@@ -186,7 +188,6 @@ let player = {
 window.addEventListener("keydown", function(event) { player.keyPress(event); }, false);
 restartButton.addEventListener("click", function() { 
     world.restart();
-    tick();
 }, false);
 
 // Initial game loop

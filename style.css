@@ -1,17 +1,44 @@
+body {
+    height: 99vh;
+    background-image: repeating-linear-gradient(315deg, #00FFFF2E 92%, #073AFF00 100%),repeating-radial-gradient(75% 75% at 238% 218%, #00FFFF12 30%, #073AFF14 39%),radial-gradient(99% 99% at 109% 2%, #C5FF07FF 0%, #073AFF00 100%),radial-gradient(99% 99% at 21% 78%, #FFD200FF 0%, #073AFF00 100%),radial-gradient(160% 154% at 711px -303px, #0DFF00FF 0%, #073AFFFF 100%);
+}
+
 .screen {
     display: flex;
     justify-content: center;
-    background-color: gray;
 }
 
 .instructions {
     display: flex;
     flex-direction: column;
     align-items: center;
-    
+    font-size: 18pt; 
+}
+
+li {
+    margin: 15px;
 }
 
 .restart {
     display: flex;
     justify-content: center;
+
+}
+
+#restartButton {
+    border-radius: 50px;
+    padding: 10px;
+    margin: 4px;
+    width: fit-content;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 700;
+    background-color: #7ca53f;
+}
+
+#restartButton:active {
+    background-color: #fff;
+    border: solid;
+    border-color: #7ca53f;
+    color: #7ca53f;
 }
